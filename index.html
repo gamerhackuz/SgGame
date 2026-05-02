@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Son Topish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #ffecd2, #fcb69f); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .game { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); text-align: center; max-width: 400px; width: 100%; }
+        h2 { color: #333; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 20px; }
+        .hint { min-height: 24px; margin: 15px 0; font-weight: bold; font-size: 18px; }
+        .hint.higher { color: #e67e22; }
+        .hint.lower { color: #2980b9; }
+        .hint.win { color: #27ae60; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; text-align: center; }
+        button { padding: 12px 20px; background: #ff6b6b; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ff8787; }
+        .stats { display: flex; justify-content: space-between; padding-top: 15px; border-top: 1px solid #eee; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="game">
+        <h2>🎲 Son Topish O'yini</h2>
+        <p>1 dan 100 gacha son o'yladim. Topa olasizmi?</p>
+        <div class="hint" id="hint">O'yinni boshlang!</div>
+        <div class="controls">
+            <input type="number" id="guess" min="1" max="100" placeholder="Son kiriting...">
+            <button onclick="makeGuess()">Tekshirish</button>
+        </div>
+        <div class="stats">
+            <span>Urinishlar: <b id="attempts">0</b></span>
+            <span>Eng yaxshi: <b id="best">-</b></span>
+        </div>
+        <button style="margin-top:20px; background:#333;" onclick="initGame()">🔄 Yangi O'yin</button>
+    </div>
+
+    <script>
+        let target, attempts = 0, best = localStorage.getItem('guessBest') || '-';
+        document.getElementById('best').textContent = best;
+
+        function initGame() {
+            target = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            document.getElementById('attempts').textContent = '0';
+            document.getElementById('hint').textContent = "O'yinni boshlang!";
+            document.getElementById('hint').className = "hint";
+            document.getElementById('guess').value = '';
+            document.getElementById('guess').focus();
+        }
+
+        function makeGuess() {
+            const input = document.getElementById('guess');
+            const val = parseInt(input.value);
+            if (isNaN(val) || val < 1 || val > 100) return;
+
+            attempts++;
+            document.getElementById('attempts').textContent = attempts;
+            const hint = document.getElementById('hint');
+
+            if (val === target) {
+                hint.textContent = "🎉 Tabriklaymiz! Topdingiz!";
+                hint.className = "hint win";
+                if (best === '-' || attempts < parseInt(best)) {
+                    best = attempts;
+                    localStorage.setItem('guessBest', best);
+                    document.getElementById('best').textContent = best;
+                }
+            } else if (val < target) {
+                hint.textContent = "📈 Kattaroq son kiriting!";
+                hint.className = "hint higher";
+            } else {
+                hint.textContent = "📉 Kichikroq son kiriting!";
+                hint.className = "hint lower";
+            }
+            input.value = '';
+            input.focus();
+        }
+
+        document.getElementById('guess').addEventListener('keypress', e => { if(e.key==='Enter') makeGuess(); });
+        initGame();
+    </script>
+</body>
+</html>
